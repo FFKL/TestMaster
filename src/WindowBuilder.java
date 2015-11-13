@@ -30,6 +30,7 @@ public class WindowBuilder {
 
     char id;
     public static int counter = 0;
+    public static int rights = 0;
 
     public WindowBuilder() {
         createWindow();
@@ -41,7 +42,7 @@ public class WindowBuilder {
         mainWindow.setLayout(mainBorder);
         testPanel = new JPanel();
         buttonPanel = new JPanel();
-        getQuestions = new JButton("Начать");
+        getQuestions = new JButton("Старт/Дальше");
         checkAnswer = new JButton("Проверить");
         GridLayout layoutQuestion = new GridLayout(4, 2);
         GridLayout layoutButtons = new GridLayout(1, 2);
@@ -101,7 +102,7 @@ public class WindowBuilder {
         JFrame frame = new JFrame("TestMaster");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setContentPane(mainWindow);
-        frame.setSize(400, 200);
+        frame.setPreferredSize(new Dimension(500, 300));
         frame.pack();
         frame.setVisible(true);
     }
@@ -113,39 +114,44 @@ public class WindowBuilder {
             BaseIO base = null;
             try {
                 base = new BaseIO();
+                ArrayList<String> currentQuestion = base.readTestBase().get(counter);
+                System.out.println(counter);
+                if (counter >= (base.readTestBase().size()) - 1){
+                    ResultWindow result = new ResultWindow();
+                    result.setMark(rights, base.readTestBase().size());
+                }
+                else {
+                    question.setText(currentQuestion.get(0));
+                    ArrayList<Integer> shuffledAnswers = new Shuffle().shuffling();
 
-            ArrayList<String> currentQuestion = base.readTestBase().get(counter);
+                    String afterRandomA = currentQuestion.get(shuffledAnswers.get(0));
+                    String afterRandomB = currentQuestion.get(shuffledAnswers.get(1));
+                    String afterRandomC = currentQuestion.get(shuffledAnswers.get(2));
+                    String afterRandomD = currentQuestion.get(shuffledAnswers.get(3));
 
-            question.setText(currentQuestion.get(0));
-            ArrayList<Integer> shuffledAnswers = new Shuffle().shuffling();
+                    if (afterRandomA.contains("&")){
+                        id = 'A';
+                        afterRandomA = afterRandomA.substring(1);
+                    }
+                    else if (afterRandomB.contains("&")) {
+                        id = 'B';
+                        afterRandomB = afterRandomB.substring(1);
+                    }
+                    else if (afterRandomC.contains("&")){
+                        id = 'C';
+                        afterRandomC = afterRandomC.substring(1);
+                    }
+                    else if (afterRandomD.contains("&")){
+                        id = 'D';
+                        afterRandomD = afterRandomD.substring(1);
+                    }
 
-            String afterRandomA = currentQuestion.get(shuffledAnswers.get(0));
-            String afterRandomB = currentQuestion.get(shuffledAnswers.get(1));
-            String afterRandomC = currentQuestion.get(shuffledAnswers.get(2));
-            String afterRandomD = currentQuestion.get(shuffledAnswers.get(3));
-
-            if (afterRandomA.contains("&")){
-                id = 'A';
-                afterRandomA = afterRandomA.substring(1);
-            }
-            else if (afterRandomB.contains("&")) {
-                id = 'B';
-                afterRandomB = afterRandomB.substring(1);
-            }
-            else if (afterRandomC.contains("&")){
-                id = 'C';
-                afterRandomC = afterRandomC.substring(1);
-            }
-            else if (afterRandomD.contains("&")){
-                id = 'D';
-                afterRandomD = afterRandomD.substring(1);
-            }
-
-            answerA.setText(afterRandomA);
-            answerB.setText(afterRandomB);
-            answerC.setText(afterRandomC);
-            answerD.setText(afterRandomD);
-            counter++;
+                    answerA.setText(afterRandomA);
+                    answerB.setText(afterRandomB);
+                    answerC.setText(afterRandomC);
+                    answerD.setText(afterRandomD);
+                    counter++;
+                }
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -165,8 +171,11 @@ public class WindowBuilder {
             else if (d.getModel().isSelected() == true)
                 id2 = 'D';
 
-            if (id2 == id)
+            if (id2 == id) {
                 System.out.println("Ответ верный!!! Ура");
+                rights++;
+                System.out.println(rights);
+            }
             else
                 System.out.println("Ответ неверный! Подумайте еще!");
 
